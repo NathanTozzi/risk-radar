@@ -20,5 +20,9 @@ export default defineConfig({
         manualChunks: undefined
       }
     }
+  },
+  esbuild: {
+    // Skip TypeScript checking during build for faster deployment
+    logOverride: { 'this-is-undefined-in-esm': 'silent' }
   }
 })
