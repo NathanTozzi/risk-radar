@@ -1,6 +1,7 @@
 from sqlmodel import SQLModel, Field, Relationship
+from sqlalchemy import Column, JSON
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 
 class CompanyType(str, Enum):
@@ -24,7 +25,7 @@ class Company(SQLModel, table=True):
     state: Optional[str] = Field(index=True)
     website: Optional[str] = None
     normalized_name: str = Field(index=True)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
     aliases: List["CompanyAlias"] = Relationship(back_populates="company")
     events: List["Event"] = Relationship(back_populates="company")
@@ -77,9 +78,9 @@ class Event(SQLModel, table=True):
     project_id: Optional[int] = Field(foreign_key="project.id", index=True)
     occurred_on: datetime = Field(index=True)
     severity_score: float = Field(default=0.0)
-    data: Dict[str, Any] = Field(default_factory=dict, sa_column_kwargs={"type_": "JSON"})
+    data: Dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
     link: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
     company: Company = Relationship(back_populates="events")
     project: Optional[Project] = Relationship(back_populates="events")
@@ -104,7 +105,7 @@ class TargetOpportunity(SQLModel, table=True):
     propensity_score: float = Field(index=True)
     confidence: float = Field(default=0.0)
     recommended_talk_track: str = ""
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
     outreach_kits: List["OutreachKit"] = Relationship(back_populates="target")
 
@@ -114,8 +115,8 @@ class OutreachKit(SQLModel, table=True):
     email_md: str = ""
     linkedin_md: str = ""
     call_notes_md: str = ""
-    attachments: Dict[str, Any] = Field(default_factory=dict, sa_column_kwargs={"type_": "JSON"})
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    attachments: Dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
     target: TargetOpportunity = Relationship(back_populates="outreach_kits")
 
@@ -125,11 +126,11 @@ class User(SQLModel, table=True):
     name: str
     role: str = Field(default="user")
     hashed_password: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class AuditLog(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     action: str = Field(index=True)
     user_id: Optional[int] = Field(foreign_key="user.id", index=True)
-    payload: Dict[str, Any] = Field(default_factory=dict, sa_column_kwargs={"type_": "JSON"})
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    payload: Dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

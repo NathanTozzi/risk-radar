@@ -31,7 +31,7 @@ pdf_generator = ProspectPackGenerator()
 entity_resolver = EntityResolver()
 
 @app.on_event("startup")
-def on_startup():
+async def startup_event():
     create_db_and_tables()
 
 @app.get("/")

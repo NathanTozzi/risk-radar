@@ -4,7 +4,7 @@ import os
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://riskradar:password@localhost:5432/riskradar")
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
