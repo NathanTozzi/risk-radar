@@ -2,9 +2,18 @@ from sqlmodel import SQLModel, create_engine, Session
 from typing import Generator
 import os
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://riskradar:password@localhost:5432/riskradar")
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    # Default to SQLite for local/simple deployments
+    DATABASE_URL = "sqlite:///./riskradar.db"
+    print(f"Using SQLite database: {DATABASE_URL}")
 
-engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
+# Create engine with appropriate settings
+if DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
+    print(f"Using PostgreSQL database")
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)

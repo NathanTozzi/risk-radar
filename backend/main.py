@@ -61,7 +61,11 @@ async def startup_event():
 
 @app.get("/")
 def read_root():
-    return {"message": "RiskRadar API is running"}
+    return {"message": "RiskRadar API is running", "status": "healthy"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "service": "RiskRadar"}
 
 # Companies
 @api_router.get("/companies", response_model=List[Company])

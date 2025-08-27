@@ -1,19 +1,8 @@
 services:
-  # PostgreSQL Database
-  - type: pserv
-    name: riskradar-db
-    plan: free
-    
-  # Combined Application
+  # Combined Application (uses SQLite initially)
   - type: web
     name: riskradar
     env: docker
     plan: free
     dockerfilePath: ./Dockerfile
     healthCheckPath: /
-    envVars:
-      - key: DATABASE_URL
-        fromService:
-          type: pserv
-          name: riskradar-db
-          property: connectionString
