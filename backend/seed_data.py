@@ -55,13 +55,20 @@ async def seed_database():
         print("Creating ITA metrics...")
         create_ita_metrics(session, companies)
         
-        # Run ingestion to create events
-        print("Running data ingestion...")
-        ingestion_service = IngestionService()
-        await ingestion_service.run_ingestion(
-            sources=["osha_establishment", "osha_accidents", "news", "ita"],
-            since=datetime.now() - timedelta(days=180)
-        )
+        # Create realistic incidents instead of running complex ingestion
+        print("Creating compelling safety incidents...")
+        try:
+            import subprocess
+            import sys
+            result = subprocess.run([sys.executable, "create_realistic_incidents.py"], 
+                                  capture_output=True, text=True, cwd="/app")
+            if result.returncode == 0:
+                print("✅ Realistic incidents created successfully")
+            else:
+                print(f"⚠️  Incident creation had issues: {result.stderr}")
+        except Exception as e:
+            print(f"⚠️  Could not create incidents: {e}")
+            print("Continuing with basic seed data...")
         
         # Generate target opportunities
         print("Generating target opportunities...")
@@ -86,41 +93,49 @@ async def seed_database():
         session.close()
 
 def create_companies(session: Session) -> dict:
-    """Create sample companies"""
+    """Create realistic sample companies with compelling use cases"""
     
-    # General Contractors
+    # Major General Contractors (High-value targets)
     gcs = [
-        Company(name="MegaBuild Construction Corp", type=CompanyType.GC, naics="236220", state="TX", website="https://megabuild.com", normalized_name="MEGABUILD CONSTRUCTION"),
-        Company(name="Premier General Contractors LLC", type=CompanyType.GC, naics="236210", state="CA", website="https://premierGC.com", normalized_name="PREMIER GENERAL CONTRACTORS"),
-        Company(name="Skyline Construction Group", type=CompanyType.GC, naics="236220", state="NY", website="https://skylineconstruction.com", normalized_name="SKYLINE CONSTRUCTION GROUP"),
-        Company(name="Golden State Builders Inc", type=CompanyType.GC, naics="236220", state="CA", website="https://goldenstatebuilders.com", normalized_name="GOLDEN STATE BUILDERS"),
-        Company(name="Atlantic Construction Partners", type=CompanyType.GC, naics="236210", state="FL", website="https://atlanticcp.com", normalized_name="ATLANTIC CONSTRUCTION PARTNERS"),
-        Company(name="Lone Star Development Co", type=CompanyType.GC, naics="236220", state="TX", website="https://lonestardevelopment.com", normalized_name="LONE STAR DEVELOPMENT")
+        Company(name="Turner Construction Company", type=CompanyType.GC, naics="236220", state="NY", website="https://turnerconstruction.com", normalized_name="TURNER CONSTRUCTION"),
+        Company(name="Skanska USA Building Inc", type=CompanyType.GC, naics="236210", state="NY", website="https://skanska.com", normalized_name="SKANSKA USA BUILDING"),
+        Company(name="Clark Construction Group", type=CompanyType.GC, naics="236220", state="MD", website="https://clarkconstruction.com", normalized_name="CLARK CONSTRUCTION GROUP"),
+        Company(name="Mortenson Construction", type=CompanyType.GC, naics="236220", state="MN", website="https://mortenson.com", normalized_name="MORTENSON CONSTRUCTION"),
+        Company(name="Suffolk Construction Company", type=CompanyType.GC, naics="236210", state="MA", website="https://suffolkco.com", normalized_name="SUFFOLK CONSTRUCTION"),
+        Company(name="Hensel Phelps Construction", type=CompanyType.GC, naics="236220", state="CO", website="https://henselphelps.com", normalized_name="HENSEL PHELPS CONSTRUCTION"),
+        Company(name="McCarthy Building Companies", type=CompanyType.GC, naics="236210", state="MO", website="https://mccarthy.com", normalized_name="MCCARTHY BUILDING COMPANIES"),
+        Company(name="DPR Construction", type=CompanyType.GC, naics="236220", state="CA", website="https://dpr.com", normalized_name="DPR CONSTRUCTION")
     ]
     
-    # Owners/Developers
+    # Major Property Owners/Developers (High-value targets)
     owners = [
-        Company(name="Metro Property Development", type=CompanyType.OWNER, naics="531110", state="NY", website="https://metroprop.com", normalized_name="METRO PROPERTY DEVELOPMENT"),
-        Company(name="Sunshine Real Estate Holdings", type=CompanyType.OWNER, naics="531110", state="FL", website="https://sunshineREH.com", normalized_name="SUNSHINE REAL ESTATE HOLDINGS"),
-        Company(name="Pacific Coast Properties LLC", type=CompanyType.OWNER, naics="531110", state="CA", website="https://pacificcoastprop.com", normalized_name="PACIFIC COAST PROPERTIES"),
-        Company(name="Texas Tower Development Corp", type=CompanyType.OWNER, naics="531110", state="TX", website="https://texastower.com", normalized_name="TEXAS TOWER DEVELOPMENT")
+        Company(name="Brookfield Properties", type=CompanyType.OWNER, naics="531110", state="NY", website="https://brookfieldproperties.com", normalized_name="BROOKFIELD PROPERTIES"),
+        Company(name="Hines Real Estate", type=CompanyType.OWNER, naics="531110", state="TX", website="https://hines.com", normalized_name="HINES REAL ESTATE"),
+        Company(name="Related Companies", type=CompanyType.OWNER, naics="531110", state="NY", website="https://related.com", normalized_name="RELATED COMPANIES"),
+        Company(name="Boston Properties Inc", type=CompanyType.OWNER, naics="531110", state="MA", website="https://bostonproperties.com", normalized_name="BOSTON PROPERTIES"),
+        Company(name="Kilroy Realty Corporation", type=CompanyType.OWNER, naics="531110", state="CA", website="https://kilroyrealty.com", normalized_name="KILROY REALTY"),
+        Company(name="Prologis Inc", type=CompanyType.OWNER, naics="531120", state="CA", website="https://prologis.com", normalized_name="PROLOGIS")
     ]
     
-    # Subcontractors (some with issues)
+    # Subcontractors with realistic risk profiles
     subs = [
-        # High-risk subs
-        Company(name="ABC Construction LLC", type=CompanyType.SUB, naics="236220", state="TX", normalized_name="ABC CONSTRUCTION"),
-        Company(name="Danger Zone Demolition", type=CompanyType.SUB, naics="238910", state="CA", normalized_name="DANGER ZONE DEMOLITION"),
-        Company(name="QuickBuild Contractors", type=CompanyType.SUB, naics="238120", state="NY", normalized_name="QUICKBUILD CONTRACTORS"),
-        Company(name="XYZ Roofing Inc", type=CompanyType.SUB, naics="238160", state="CA", normalized_name="XYZ ROOFING"),
+        # HIGH-RISK: Recent serious incidents - Prime targets for outreach
+        Company(name="RapidFrame Steel Erectors", type=CompanyType.SUB, naics="238120", state="TX", normalized_name="RAPIDFRAME STEEL ERECTORS"),
+        Company(name="Lightning Fast Electric Co", type=CompanyType.SUB, naics="238210", state="FL", normalized_name="LIGHTNING FAST ELECTRIC"),
+        Company(name="CutCorner Roofing Solutions", type=CompanyType.SUB, naics="238160", state="CA", normalized_name="CUTCORNER ROOFING SOLUTIONS"),
+        Company(name="FastTrack Demolition LLC", type=CompanyType.SUB, naics="238910", state="NY", normalized_name="FASTTRACK DEMOLITION"),
         
-        # Medium-risk subs
-        Company(name="SafetyFirst Steel Co", type=CompanyType.SUB, naics="238120", state="NY", normalized_name="SAFETYFIRST STEEL"),
-        Company(name="Reliable Electric Systems", type=CompanyType.SUB, naics="238210", state="FL", normalized_name="RELIABLE ELECTRIC SYSTEMS"),
-        Company(name="Expert Plumbing Solutions", type=CompanyType.SUB, naics="238220", state="TX", normalized_name="EXPERT PLUMBING SOLUTIONS"),
+        # MEDIUM-RISK: Some violations, good rehabilitation opportunities  
+        Company(name="Metropolitan HVAC Services", type=CompanyType.SUB, naics="238220", state="NY", normalized_name="METROPOLITAN HVAC SERVICES"),
+        Company(name="Precision Concrete Contractors", type=CompanyType.SUB, naics="238110", state="CA", normalized_name="PRECISION CONCRETE CONTRACTORS"),
+        Company(name="Reliable Plumbing Systems", type=CompanyType.SUB, naics="238220", state="TX", normalized_name="RELIABLE PLUMBING SYSTEMS"),
+        Company(name="Advanced Electrical Solutions", type=CompanyType.SUB, naics="238210", state="MA", normalized_name="ADVANCED ELECTRICAL SOLUTIONS"),
         
-        # Low-risk subs
-        Company(name="Premium Finishing Works", type=CompanyType.SUB, naics="238320", state="CA", normalized_name="PREMIUM FINISHING WORKS")
+        # LOW-RISK: Minimal issues, good safety records
+        Company(name="Premier Finishing Contractors", type=CompanyType.SUB, naics="238320", state="CA", normalized_name="PREMIER FINISHING CONTRACTORS"),
+        Company(name="Elite Mechanical Systems", type=CompanyType.SUB, naics="238220", state="NY", normalized_name="ELITE MECHANICAL SYSTEMS"),
+        Company(name="SafeBuild Construction Services", type=CompanyType.SUB, naics="238990", state="FL", normalized_name="SAFEBUILD CONSTRUCTION SERVICES"),
+        Company(name="Quality First Contractors", type=CompanyType.SUB, naics="238320", state="TX", normalized_name="QUALITY FIRST CONTRACTORS")
     ]
     
     all_companies = gcs + owners + subs
@@ -149,56 +164,57 @@ def create_companies(session: Session) -> dict:
     }
 
 def create_projects(session: Session, companies: dict) -> list:
-    """Create sample projects"""
+    """Create realistic high-value projects"""
     
     projects = [
+        # Major commercial developments - High value targets
         Project(
-            name="Downtown Office Tower", 
-            location="Dallas, TX",
-            owner_id=companies["owners"][3].id,  # Texas Tower Development
-            gc_id=companies["gcs"][0].id,        # MegaBuild Construction
-            start_date=datetime(2023, 1, 15),
-            end_date=datetime(2024, 6, 30)
-        ),
-        Project(
-            name="Luxury Residential Complex",
-            location="Los Angeles, CA", 
-            owner_id=companies["owners"][2].id,  # Pacific Coast Properties
-            gc_id=companies["gcs"][1].id,        # Premier General Contractors
-            start_date=datetime(2023, 3, 1),
-            end_date=datetime(2024, 12, 15)
-        ),
-        Project(
-            name="Industrial Manufacturing Facility",
-            location="Houston, TX",
-            owner_id=companies["owners"][3].id,  # Texas Tower Development
-            gc_id=companies["gcs"][5].id,        # Lone Star Development
-            start_date=datetime(2022, 8, 1),
-            end_date=datetime(2024, 2, 28)
-        ),
-        Project(
-            name="Medical Center Expansion",
-            location="Miami, FL",
-            owner_id=companies["owners"][1].id,  # Sunshine Real Estate Holdings
-            gc_id=companies["gcs"][4].id,        # Atlantic Construction Partners
-            start_date=datetime(2023, 5, 1),
-            end_date=datetime(2024, 8, 30)
-        ),
-        Project(
-            name="Manhattan High-Rise",
+            name="One World Trade Center Phase II", 
             location="New York, NY",
-            owner_id=companies["owners"][0].id,  # Metro Property Development
-            gc_id=companies["gcs"][2].id,        # Skyline Construction Group
+            owner_id=companies["owners"][2].id,  # Related Companies
+            gc_id=companies["gcs"][0].id,        # Turner Construction
             start_date=datetime(2023, 2, 1),
-            end_date=datetime(2025, 1, 15)
+            end_date=datetime(2025, 8, 30)
         ),
         Project(
-            name="Tech Campus Phase 2",
-            location="San Francisco, CA",
-            owner_id=companies["owners"][2].id,  # Pacific Coast Properties
-            gc_id=companies["gcs"][3].id,        # Golden State Builders
+            name="Amazon HQ3 Campus Development",
+            location="Austin, TX", 
+            owner_id=companies["owners"][1].id,  # Hines Real Estate
+            gc_id=companies["gcs"][3].id,        # Mortenson Construction
+            start_date=datetime(2023, 1, 15),
+            end_date=datetime(2025, 12, 31)
+        ),
+        Project(
+            name="Boston Biotech Research Complex",
+            location="Boston, MA",
+            owner_id=companies["owners"][3].id,  # Boston Properties
+            gc_id=companies["gcs"][4].id,        # Suffolk Construction
+            start_date=datetime(2022, 8, 1),
+            end_date=datetime(2024, 4, 30)
+        ),
+        Project(
+            name="Los Angeles Metro Expansion",
+            location="Los Angeles, CA",
+            owner_id=companies["owners"][4].id,  # Kilroy Realty
+            gc_id=companies["gcs"][7].id,        # DPR Construction
+            start_date=datetime(2023, 6, 1),
+            end_date=datetime(2026, 3, 15)
+        ),
+        Project(
+            name="Denver Airport Terminal Renovation",
+            location="Denver, CO", 
+            owner_id=companies["owners"][0].id,  # Brookfield Properties
+            gc_id=companies["gcs"][5].id,        # Hensel Phelps Construction
             start_date=datetime(2023, 4, 1),
-            end_date=datetime(2024, 10, 30)
+            end_date=datetime(2024, 11, 30)
+        ),
+        Project(
+            name="Chicago Logistics Hub Development",
+            location="Chicago, IL",
+            owner_id=companies["owners"][5].id,  # Prologis
+            gc_id=companies["gcs"][6].id,        # McCarthy Building Companies
+            start_date=datetime(2023, 9, 1),
+            end_date=datetime(2024, 8, 31)
         )
     ]
     
@@ -209,17 +225,18 @@ def create_projects(session: Session, companies: dict) -> list:
     return projects
 
 def create_relationships(session: Session, companies: dict, projects: list):
-    """Create subcontractor relationships"""
+    """Create compelling subcontractor relationships that demonstrate business value"""
     
     relationships = [
-        # Downtown Office Tower relationships
+        # One World Trade Center Phase II - HIGH VALUE TARGET SCENARIO
+        # Turner Construction + Related Companies using RapidFrame Steel (RECENT INCIDENT!)
         SubRelationship(
-            gc_id=companies["gcs"][0].id,
-            owner_id=companies["owners"][3].id,
-            sub_id=companies["subs"][0].id,  # ABC Construction (high-risk)
-            project_id=projects[0].id,
-            trade="General Construction",
-            po_value=2500000.0,
+            gc_id=companies["gcs"][0].id,    # Turner Construction  
+            owner_id=companies["owners"][2].id,  # Related Companies
+            sub_id=companies["subs"][0].id,  # RapidFrame Steel Erectors (HIGH-RISK)
+            project_id=projects[0].id,      # One World Trade Center Phase II
+            trade="Steel Erection",
+            po_value=15000000.0,  # $15M steel contract
             start_date=datetime(2023, 2, 1),
             end_date=datetime(2024, 5, 30)
         ),
