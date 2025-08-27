@@ -21,14 +21,22 @@ async def seed_database():
     try:
         # Clear existing data
         print("Clearing existing data...")
-        session.query(OutreachKit).delete()
-        session.query(TargetOpportunity).delete()
-        session.query(Event).delete()
-        session.query(SubRelationship).delete()
-        session.query(MetricsITA).delete()
-        session.query(CompanyAlias).delete()
-        session.query(Project).delete()
-        session.query(Company).delete()
+        for kit in session.exec(select(OutreachKit)).all():
+            session.delete(kit)
+        for opp in session.exec(select(TargetOpportunity)).all():
+            session.delete(opp)
+        for event in session.exec(select(Event)).all():
+            session.delete(event)
+        for rel in session.exec(select(SubRelationship)).all():
+            session.delete(rel)
+        for metric in session.exec(select(MetricsITA)).all():
+            session.delete(metric)
+        for alias in session.exec(select(CompanyAlias)).all():
+            session.delete(alias)
+        for project in session.exec(select(Project)).all():
+            session.delete(project)
+        for company in session.exec(select(Company)).all():
+            session.delete(company)
         session.commit()
         
         # Create companies

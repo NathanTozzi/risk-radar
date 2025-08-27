@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
 from database import get_session, create_db_and_tables
 from models import *
@@ -16,19 +17,42 @@ import os
 
 app = FastAPI(title="RiskRadar API", description="BDR application for identifying GCs and asset owners after subcontractor incidents", version="1.0.0")
 
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=["http://localhost:3000", "http://localhost:5173", "https://risk-radar-8d3m.onrender.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Serve static files in production
+if os.path.exists("../frontend/dist"):
+    app.mount("/static", StaticFiles(directory="../frontend/dist/assets"), name="static")
+    
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        """Serve frontend files for all non-API routes"""
+        # Skip API routes
+        if full_path.startswith(("api/", "docs", "redoc", "openapi.json")):
+            raise HTTPException(status_code=404, detail="Not found")
+        
+        # Try to serve specific file
+        file_path = f"../frontend/dist/{full_path}"
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        
+        # Default to index.html for SPA routing
+        return FileResponse("../frontend/dist/index.html")
 
 ingestion_service = IngestionService()
 scorer = PropensityScorer()
 outreach_generator = OutreachGenerator()
 pdf_generator = ProspectPackGenerator()
 entity_resolver = EntityResolver()
+
+# Create API router
+api_router = APIRouter(prefix="/api")
 
 @app.on_event("startup")
 async def startup_event():
@@ -39,7 +63,7 @@ def read_root():
     return {"message": "RiskRadar API is running"}
 
 # Companies
-@app.get("/companies", response_model=List[Company])
+@api_router.get("/companies", response_model=List[Company])
 def get_companies(
     type: Optional[CompanyType] = None,
     q: Optional[str] = None,
@@ -53,7 +77,7 @@ def get_companies(
     companies = session.exec(statement).all()
     return companies
 
-@app.get("/companies/{company_id}", response_model=Company)
+@api_router.get("/companies/{company_id}", response_model=Company)
 def get_company(company_id: int, session: Session = Depends(get_session)):
     company = session.get(Company, company_id)
     if not company:
@@ -61,7 +85,7 @@ def get_company(company_id: int, session: Session = Depends(get_session)):
     return company
 
 # Events
-@app.get("/events")
+@api_router.get("/events")
 def get_events(
     company_id: Optional[int] = None,
     event_type: Optional[EventType] = None,
@@ -82,7 +106,7 @@ def get_events(
     return events
 
 # Opportunities
-@app.get("/opportunities")
+@api_router.get("/opportunities")
 def get_opportunities(
     min_score: Optional[float] = 0,
     limit: Optional[int] = 100,
@@ -93,14 +117,14 @@ def get_opportunities(
     opportunities = session.exec(statement).all()
     return opportunities
 
-@app.get("/opportunities/{opportunity_id}")
+@api_router.get("/opportunities/{opportunity_id}")
 def get_opportunity(opportunity_id: int, session: Session = Depends(get_session)):
     opportunity = session.get(TargetOpportunity, opportunity_id)
     if not opportunity:
         raise HTTPException(status_code=404, detail="Opportunity not found")
     return opportunity
 
-@app.post("/opportunities/rebuild")
+@api_router.post("/opportunities/rebuild")
 async def rebuild_opportunities(
     since: Optional[str] = None,
     until: Optional[str] = None,
@@ -113,7 +137,7 @@ async def rebuild_opportunities(
     return result
 
 # Outreach
-@app.post("/outreach/generate")
+@api_router.post("/outreach/generate")
 def generate_outreach_kit(
     target_id: int,
     session: Session = Depends(get_session)
@@ -125,14 +149,14 @@ def generate_outreach_kit(
     outreach_kit = outreach_generator.generate_outreach_kit(session, opportunity)
     return {"id": outreach_kit.id, "message": "Outreach kit generated successfully"}
 
-@app.get("/outreach/{kit_id}")
+@api_router.get("/outreach/{kit_id}")
 def get_outreach_kit(kit_id: int, session: Session = Depends(get_session)):
     kit = session.get(OutreachKit, kit_id)
     if not kit:
         raise HTTPException(status_code=404, detail="Outreach kit not found")
     return kit
 
-@app.post("/outreach/{kit_id}/export/pdf")
+@api_router.post("/outreach/{kit_id}/export/pdf")
 def export_prospect_pack(kit_id: int, session: Session = Depends(get_session)):
     kit = session.get(OutreachKit, kit_id)
     if not kit:
@@ -151,7 +175,7 @@ def export_prospect_pack(kit_id: int, session: Session = Depends(get_session)):
     )
 
 # Ingestion
-@app.post("/ingest/run")
+@api_router.post("/ingest/run")
 async def run_ingestion(
     sources: List[str],
     since: Optional[str] = None,
@@ -164,12 +188,12 @@ async def run_ingestion(
     result = await ingestion_service.run_ingestion(sources, since_dt, until_dt, companies)
     return result
 
-@app.get("/ingest/status")
+@api_router.get("/ingest/status")
 def get_ingestion_status():
     return {"status": "idle", "last_run": None}
 
 # File uploads
-@app.post("/uploads/{mapping_type}")
+@api_router.post("/uploads/{mapping_type}")
 async def upload_csv(
     mapping_type: str,
     file: UploadFile = File(...),
@@ -183,6 +207,9 @@ async def upload_csv(
     
     result = entity_resolver.process_csv_mappings(session, csv_content, mapping_type)
     return result
+
+# Include the API router
+app.include_router(api_router)
 
 if __name__ == "__main__":
     import uvicorn
