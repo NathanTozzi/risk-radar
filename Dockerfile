@@ -3,10 +3,12 @@ FROM node:18-alpine as frontend-build
 
 WORKDIR /app
 COPY frontend/package*.json ./
-RUN npm ci --only=production
+RUN npm install
 
 COPY frontend/ ./
 RUN npm run build
+# Verify the build output exists
+RUN ls -la dist/
 
 FROM python:3.11-slim
 
@@ -26,8 +28,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy backend code
 COPY backend/ .
 
-# Copy frontend build output
+# Copy frontend build output and verify
 COPY --from=frontend-build /app/dist ./dist
+RUN ls -la dist/
 
 # Expose port for Render
 EXPOSE 10000
