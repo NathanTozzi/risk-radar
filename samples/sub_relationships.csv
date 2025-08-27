@@ -1,0 +1,13 @@
+gc_name,owner_name,sub_name,project_name,location,start_date,end_date,trade,po_value
+MegaBuild Construction Corp,Texas Tower Development Corp,ABC Construction LLC,Downtown Office Tower,"Dallas, TX",2023-02-01,2024-05-30,General Construction,2500000
+MegaBuild Construction Corp,Texas Tower Development Corp,SafetyFirst Steel Co,Downtown Office Tower,"Dallas, TX",2023-03-01,2023-08-30,Steel Erection,800000
+Premier General Contractors LLC,Pacific Coast Properties LLC,XYZ Roofing Inc,Luxury Residential Complex,"Los Angeles, CA",2023-06-01,2024-01-15,Roofing,450000
+Premier General Contractors LLC,Pacific Coast Properties LLC,Premium Finishing Works,Luxury Residential Complex,"Los Angeles, CA",2024-03-01,2024-11-30,Interior Finishing,750000
+Lone Star Development Co,Texas Tower Development Corp,Danger Zone Demolition,Industrial Manufacturing Facility,"Houston, TX",2022-08-15,2022-12-30,Demolition,300000
+Lone Star Development Co,Texas Tower Development Corp,Reliable Electric Systems,Industrial Manufacturing Facility,"Houston, TX",2023-02-01,2023-12-15,Electrical,650000
+Skyline Construction Group,Metro Property Development,QuickBuild Contractors,Manhattan High-Rise,"New York, NY",2023-04-01,2024-06-30,Structural Steel,1200000
+Atlantic Construction Partners,Sunshine Real Estate Holdings,Expert Plumbing Solutions,Medical Center Expansion,"Miami, FL",2023-07-01,2024-06-30,Plumbing,380000
+Golden State Builders Inc,Pacific Coast Properties LLC,Reliable Electric Systems,Tech Campus Phase 2,"San Francisco, CA",2023-05-01,2024-09-30,Electrical,525000
+Skyline Construction Group,Metro Property Development,Premium Finishing Works,Manhattan High-Rise,"New York, NY",2024-01-15,2024-11-30,Interior Finishing,890000
+MegaBuild Construction Corp,Texas Tower Development Corp,Expert Plumbing Solutions,Downtown Office Tower,"Dallas, TX",2023-04-01,2024-04-30,Plumbing,320000
+Premier General Contractors LLC,Pacific Coast Properties LLC,SafetyFirst Steel Co,Luxury Residential Complex,"Los Angeles, CA",2023-04-15,2023-10-30,Structural Steel,675000

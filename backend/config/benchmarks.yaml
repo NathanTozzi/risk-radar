@@ -1,0 +1,52 @@
+dart_benchmarks:
+  # NAICS code -> benchmark DART rate
+  "236220": 3.5  # Commercial and institutional building construction
+  "236210": 4.8  # Industrial building construction  
+  "238160": 5.0  # Roofing contractors
+  "238120": 4.2  # Structural steel and precast concrete contractors
+  "238110": 6.8  # Poured concrete foundation and structure contractors
+  "238130": 4.1  # Framing contractors
+  "238140": 3.9  # Masonry contractors
+  "238150": 5.2  # Glass and glazing contractors
+  "238170": 5.8  # Siding contractors  
+  "238210": 4.7  # Electrical contractors
+  "238220": 4.3  # Plumbing, heating, and air-conditioning contractors
+  "238290": 5.1  # Other building equipment contractors
+  "238310": 3.2  # Drywall and insulation contractors
+  "238320": 3.8  # Painting and wall covering contractors
+  "238330": 4.4  # Flooring contractors
+  "238340": 3.6  # Tile and terrazzo contractors
+  "238350": 4.9  # Finish carpentry contractors
+  "238390": 4.5  # Other building finishing contractors
+  "238910": 7.2  # Site preparation contractors
+  "238920": 6.5  # Power and communication line and related structures construction
+  "238990": 5.9  # All other specialty trade contractors
+  
+high_risk_trades:
+  - "steel erection"
+  - "roofing" 
+  - "excavation"
+  - "demolition"
+  - "crane operation"
+  - "scaffolding"
+  - "electrical high voltage"
+  - "confined space"
+  - "fall protection"
+
+scoring_config:
+  recency_decay_half_life_days: 90
+  max_recency_days: 180
+  severity_weights:
+    fatality: 50.0
+    catastrophe: 35.0
+    serious_violation: 25.0
+    willful_violation: 30.0
+    repeat_violation: 20.0
+    other_than_serious: 10.0
+  
+talk_track_templates:
+  post_incident: "Post-incident stabilization & future prequal"
+  portfolio_risk: "Portfolio risk benchmarking"
+  trend_analysis: "Trend analysis & prevention strategies"
+  compliance_gaps: "Compliance gap assessment"
+  safety_culture: "Safety culture development"

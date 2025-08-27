@@ -1,0 +1,9 @@
+sub_name,trade,headcount_bucket,insurance_notes,emr
+ABC Construction LLC,General Construction,50-100,"General liability, Workers comp",1.25
+Danger Zone Demolition,Demolition,20-50,"Specialty demo insurance, High-risk coverage",1.85
+QuickBuild Contractors,Structural Steel,100-200,"Comprehensive coverage, Crane insurance",1.45
+XYZ Roofing Inc,Roofing,25-50,"Roofing specialty, Weather coverage",1.35
+SafetyFirst Steel Co,Steel Erection,75-150,"Steel erection specialty, Fall protection",0.95
+Reliable Electric Systems,Electrical,30-75,"Electrical contractor insurance, Bonding",0.85
+Expert Plumbing Solutions,Plumbing,15-30,"Plumbing contractor coverage, Flood insurance",0.75
+Premium Finishing Works,Interior Finishing,10-25,"General trades coverage",0.65
