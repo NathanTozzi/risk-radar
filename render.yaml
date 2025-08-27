@@ -1,20 +1,4 @@
 services:
-  # Frontend Static Site
-  - type: static
-    name: risk-radar-frontend
-    rootDir: frontend
-    buildCommand: npm ci && npm run build
-    staticPublishPath: dist
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: VITE_API_BASE_URL
-        fromService:
-          type: web
-          name: risk-radar-backend
-          property: host
-    pullRequestPreviewsEnabled: true
-
   # Backend Web Service  
   - type: web
     name: risk-radar-backend
@@ -26,3 +10,15 @@ services:
       - key: PORT
         value: "10000"
     healthCheckPath: /health
+
+  # Frontend Static Site
+  - type: web
+    name: risk-radar-frontend  
+    env: node
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: NODE_ENV
+        value: production
+    pullRequestPreviewsEnabled: true
