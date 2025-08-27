@@ -302,7 +302,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 For questions, issues, or feature requests:
 
-1. Check existing [GitHub Issues](https://github.com/your-org/risk-radar/issues)
+1. Check existing [GitHub Issues](https://github.com/NathanTozzi/risk-radar/issues)
 2. Create new issue with detailed description
 3. Include steps to reproduce for bugs
 4. Provide use case context for feature requests
