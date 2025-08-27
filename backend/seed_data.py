@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime, timedelta
-from sqlmodel import Session
+from sqlmodel import Session, select
 from database import create_db_and_tables, get_session
 from models import *
 from ingestion import IngestionService
