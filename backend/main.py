@@ -27,23 +27,24 @@ app.add_middleware(
 )
 
 # Serve static files in production
-if os.path.exists("../frontend/dist"):
-    app.mount("/static", StaticFiles(directory="../frontend/dist/assets"), name="static")
+dist_dir = "./dist"
+if os.path.exists(dist_dir):
+    app.mount("/assets", StaticFiles(directory=f"{dist_dir}/assets"), name="assets")
     
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
         """Serve frontend files for all non-API routes"""
-        # Skip API routes
+        # Skip API routes and docs
         if full_path.startswith(("api/", "docs", "redoc", "openapi.json")):
             raise HTTPException(status_code=404, detail="Not found")
         
         # Try to serve specific file
-        file_path = f"../frontend/dist/{full_path}"
-        if os.path.isfile(file_path):
+        file_path = f"{dist_dir}/{full_path}"
+        if os.path.isfile(file_path) and not full_path.startswith("assets/"):
             return FileResponse(file_path)
         
         # Default to index.html for SPA routing
-        return FileResponse("../frontend/dist/index.html")
+        return FileResponse(f"{dist_dir}/index.html")
 
 ingestion_service = IngestionService()
 scorer = PropensityScorer()
