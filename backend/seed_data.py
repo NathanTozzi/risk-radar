@@ -55,20 +55,14 @@ async def seed_database():
         print("Creating ITA metrics...")
         create_ita_metrics(session, companies)
         
-        # Create realistic incidents instead of running complex ingestion
+        # Create some basic realistic incidents directly
         print("Creating compelling safety incidents...")
         try:
-            import subprocess
-            import sys
-            result = subprocess.run([sys.executable, "create_realistic_incidents.py"], 
-                                  capture_output=True, text=True, cwd="/app")
-            if result.returncode == 0:
-                print("✅ Realistic incidents created successfully")
-            else:
-                print(f"⚠️  Incident creation had issues: {result.stderr}")
+            create_basic_incidents(session, companies)
+            print("✅ Realistic incidents created successfully")
         except Exception as e:
             print(f"⚠️  Could not create incidents: {e}")
-            print("Continuing with basic seed data...")
+            print("Continuing without incidents...")
         
         # Generate target opportunities
         print("Generating target opportunities...")
@@ -420,6 +414,67 @@ def generate_sample_outreach_kits(session: Session):
             print(f"Generated outreach kit for opportunity {opportunity.id}")
         except Exception as e:
             print(f"Error generating outreach kit for {opportunity.id}: {e}")
+
+def create_basic_incidents(session: Session, companies: dict):
+    """Create basic realistic incidents inline"""
+    
+    incidents = [
+        {
+            "sub_name": "RapidFrame Steel Erectors",
+            "days_ago": 12,
+            "severity": 95.0,
+            "type": EventType.ACCIDENT,
+            "narrative": "Steel worker fell 40 feet from beam during high-rise construction. Safety harness was not properly secured.",
+            "fatality": False,
+            "hospitalization": True,
+            "penalty": 18900
+        },
+        {
+            "sub_name": "Lightning Fast Electric Co", 
+            "days_ago": 8,
+            "severity": 88.0,
+            "type": EventType.ACCIDENT,
+            "narrative": "Electrician received severe electrical shock while working on 480V panel. Failed to follow lockout/tagout procedures.",
+            "fatality": False,
+            "hospitalization": True,
+            "penalty": 25200
+        },
+        {
+            "sub_name": "CutCorner Roofing Solutions",
+            "days_ago": 25,
+            "severity": 82.0,
+            "type": EventType.CITATION,
+            "narrative": "Material load fell from crane during roofing installation, nearly striking workers below. Rigging equipment was defective.",
+            "fatality": False,
+            "hospitalization": False,
+            "penalty": 15750
+        }
+    ]
+    
+    for incident in incidents:
+        # Find a subcontractor (just use the first few for simplicity)
+        if companies["subs"]:
+            sub = companies["subs"][0]  # Use first sub for now
+            
+            event = Event(
+                source="osha_establishment",
+                event_type=incident["type"],
+                company_id=sub.id,
+                occurred_on=datetime.now() - timedelta(days=incident["days_ago"]),
+                severity_score=incident["severity"],
+                data={
+                    "narrative": incident["narrative"],
+                    "fatality": incident["fatality"],
+                    "hospitalization": incident["hospitalization"],
+                    "penalty": incident["penalty"],
+                    "project_name": "Major Construction Project",
+                    "violations": 2
+                }
+            )
+            session.add(event)
+    
+    session.commit()
+    print(f"Created {len(incidents)} safety incidents")
 
 def show_summary_stats(session: Session):
     """Show summary statistics"""

@@ -23,5 +23,9 @@ USER appuser
 # Use PORT environment variable (Render requirement)
 EXPOSE $PORT
 
-# Start command using PORT env var (defaults to 8000)
-CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+# Copy startup script and make it executable
+COPY startup.sh .
+RUN chmod +x startup.sh
+
+# Start with startup script that seeds database
+CMD ["./startup.sh"]
